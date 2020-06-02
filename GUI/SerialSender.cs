@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.IO.Ports;
+using System.Text;
 using OpenHardwareMonitor.Hardware;
 
 namespace OpenHardwareMonitor.GUI {
@@ -12,7 +13,8 @@ namespace OpenHardwareMonitor.GUI {
     byte _gpuLoad = 0;
     byte _cpuLoad = 0;
     byte _ramUsed = 0;
-    private byte[] data;
+    private byte[] _data;
+    private DateTime _lastSendTime = DateTime.MinValue;
 
 
 
@@ -32,9 +34,16 @@ namespace OpenHardwareMonitor.GUI {
       }
     }
 
+    public TimeSpan CommunicationInterval { get; set; }
+
     public void DataSend(Computer thisComputer) {
 
+      var now = DateTime.Now;
+
       if (SelectedSerialPort == null || !SelectedSerialPort.IsOpen)
+        return;
+
+      if (_lastSendTime + CommunicationInterval - new TimeSpan(5000000) > now)
         return;
 
       foreach (IHardware hw in thisComputer.Hardware) {
@@ -84,18 +93,23 @@ namespace OpenHardwareMonitor.GUI {
               }
 
               break;
-
-            default:
-              break;
           }
         }
       }
 
       string arduinoData = "C" + _cpuTemp + "c " + _cpuLoad + "%|G" + _gpuTemp + "c " + _gpuLoad + "%|R" + _ramUsed + "G|";
 
-      data = new[] {_cpuTemp, _gpuTemp, _cpuLoad, _gpuLoad, _ramUsed};
-      Console.WriteLine(arduinoData);
-      SelectedSerialPort.WriteLine(arduinoData);
+      _data = new[] {_cpuTemp, _gpuTemp, _cpuLoad, _gpuLoad, _ramUsed, (byte)255};
+
+
+      Console.WriteLine(string.Join(", ", _data));
+
+      //SelectedSerialPort.DiscardOutBuffer();
+
+      SelectedSerialPort.Write(_data,0,6);
+
+      _lastSendTime = now;
+
     }
   }
 }

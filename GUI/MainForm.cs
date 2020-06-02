@@ -325,6 +325,25 @@ namespace OpenHardwareMonitor.GUI {
         }
       };
 
+      loggingInterval.Changed += (sender, e) => {
+        switch (loggingInterval.Value) {
+          case 0: serialSender.CommunicationInterval = new TimeSpan(0, 0, 1); break;
+          case 1: serialSender.CommunicationInterval = new TimeSpan(0, 0, 2); break;
+          case 2: serialSender.CommunicationInterval = new TimeSpan(0, 0, 5); break;
+          case 3: serialSender.CommunicationInterval = new TimeSpan(0, 0, 10); break;
+          case 4: serialSender.CommunicationInterval = new TimeSpan(0, 0, 30); break;
+          case 5: serialSender.CommunicationInterval = new TimeSpan(0, 1, 0); break;
+          case 6: serialSender.CommunicationInterval = new TimeSpan(0, 2, 0); break;
+          case 7: serialSender.CommunicationInterval = new TimeSpan(0, 5, 0); break;
+          case 8: serialSender.CommunicationInterval = new TimeSpan(0, 10, 0); break;
+          case 9: serialSender.CommunicationInterval = new TimeSpan(0, 30, 0); break;
+          case 10: serialSender.CommunicationInterval = new TimeSpan(1, 0, 0); break;
+          case 11: serialSender.CommunicationInterval = new TimeSpan(2, 0, 0); break;
+          case 12: serialSender.CommunicationInterval = new TimeSpan(6, 0, 0); break;
+        }
+      };
+
+
       InitializePlotForm();
 
       startupMenuItem.Visible = startupManager.IsAvailable;
